@@ -99,7 +99,7 @@ fastapi-playground/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/fastapi-playground.git
+   git clone https://github.com/AbdulrahmanMonged/fastapi-playground.git
    cd fastapi-playground
    ```
 

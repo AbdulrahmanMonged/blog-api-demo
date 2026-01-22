@@ -9,7 +9,10 @@ A RESTful blog API built with FastAPI, SQLAlchemy, and PostgreSQL. This project 
 - **Password Security** - Bcrypt hashing with Passlib for secure credential storage
 - **Database Migrations** - Version-controlled schema changes with Alembic
 - **ORM Relationships** - One-to-many relationship between users and posts with cascade deletion
-- **Auto-generated Docs** - Interactive Swagger UI with dark theme
+- **Custom Exception Handling** - Application-specific exceptions with custom HTTP responses
+- **CORS Middleware** - Cross-Origin Resource Sharing configuration
+- **Multiple Response Types** - JSON, HTML, and PlainText responses
+- **Cookies & Headers** - Custom header handling and cookie management
 
 ## Tech Stack
 
@@ -28,6 +31,7 @@ A RESTful blog API built with FastAPI, SQLAlchemy, and PostgreSQL. This project 
 fastapi-playground/
 ├── main.py              # Application entry point
 ├── schemas.py           # Pydantic request/response models
+├── exceptions.py        # Custom exception classes
 ├── requirements.txt     # Dependencies
 ├── alembic.ini          # Migration configuration
 ├── db/
@@ -38,7 +42,8 @@ fastapi-playground/
 │   └── posts_db.py      # Post database operations
 ├── routers/
 │   ├── user.py          # User endpoints
-│   └── posts.py         # Post endpoints
+│   ├── posts.py         # Post endpoints
+│   └── product.py       # Product endpoints (response types demo)
 └── migrations/
     └── versions/        # Migration history
 ```
@@ -87,6 +92,15 @@ fastapi-playground/
 | `GET` | `/posts/post/{post_id}` | Get specific post |
 | `PUT` | `/posts/post/{post_id}` | Update post |
 | `DELETE` | `/posts/post/{post_id}` | Delete post |
+
+### Product Endpoints `/product`
+
+| Method | Endpoint | Description | Response Type |
+|--------|----------|-------------|---------------|
+| `GET` | `/product/all` | Get all products | Plain Text |
+| `GET` | `/product/withheader` | Get products with custom headers | JSON |
+| `GET` | `/product/set_cookie` | Set and read cookies | JSON |
+| `GET` | `/product/{id}` | Get product by ID | HTML or Plain Text |
 
 ## Installation
 
@@ -173,6 +187,18 @@ curl -X POST "http://localhost:8000/posts/" \
 curl -X GET "http://localhost:8000/posts/1"
 ```
 
+### Get Product (HTML Response)
+
+```bash
+curl -X GET "http://localhost:8000/product/0"
+```
+
+### Set a Cookie
+
+```bash
+curl -X GET "http://localhost:8000/product/set_cookie" -c cookies.txt
+```
+
 ## Key Learnings
 
 This project covers several important FastAPI and SQLAlchemy concepts:
@@ -183,6 +209,11 @@ This project covers several important FastAPI and SQLAlchemy concepts:
 - **Password Security** - Never storing plain passwords, using bcrypt for hashing
 - **Database Relationships** - Configuring one-to-many relationships with cascade behavior
 - **Response Models** - Using `response_model` to automatically filter sensitive data like passwords
+- **Custom Exception Handling** - Creating custom exceptions and registering handlers with `@app.exception_handler()`
+- **CORS Middleware** - Configuring cross-origin resource sharing for frontend integration
+- **Multiple Response Types** - Returning `HTMLResponse`, `PlainTextResponse`, and `JSONResponse`
+- **Cookies & Headers** - Using `Cookie()` and `Header()` parameters for reading, and `Response` for setting
+- **OpenAPI Response Documentation** - Using `responses={}` parameter to document multiple response types
 
 ## Roadmap
 

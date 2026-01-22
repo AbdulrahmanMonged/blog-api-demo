@@ -3,12 +3,16 @@ from sqlalchemy import select
 from sqlalchemy.orm.session import Session
 from db.models import Posts
 from db.user_db import get_user
+from exceptions import StoryException
 from schemas import PostModel, UpdatePostModel
 
 
 def create_post(db: Session, request: PostModel):
     current_user = get_user(db, request.user_id)
     if current_user:
+        if request.content.startswith("once upon time"):
+            raise StoryException("You can't start a story.")
+        
         new_post = Posts(
             title=request.title, content=request.content, user_id=request.user_id
         )

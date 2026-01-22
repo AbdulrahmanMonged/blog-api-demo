@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.database import Base
 
+
 class DbUser(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -10,9 +11,8 @@ class DbUser(Base):
     email: Mapped[str] = mapped_column(String(50))
 
     posts: Mapped[list["Posts"]] = relationship(
-        back_populates="author",
-        cascade="all, delete-orphan"
-        )
+        back_populates="author", cascade="all, delete-orphan"
+    )
 
 
 class Posts(Base):

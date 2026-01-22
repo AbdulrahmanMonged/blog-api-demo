@@ -12,11 +12,13 @@ class BasicUserModel(BaseModel):
     username: str
     password: str
 
+
 class UserModelResponse(BaseModel):
     username: str
     email: str
     posts: list["PostModelDisplay"]
-    
+
+
 class UpdateUserModel(BaseModel):
     username: str
     password: str
@@ -30,9 +32,11 @@ class PostModel(BaseModel):
     published: bool = True
     user_id: int
 
+
 class SimpleUserModel(BaseModel):
     username: str
-    
+
+
 class PostModelDisplay(BaseModel):
     id: int
     title: str
@@ -40,8 +44,8 @@ class PostModelDisplay(BaseModel):
     published: bool
     author: SimpleUserModel
 
+
 class UpdatePostModel(BaseModel):
     title: str
     content: str
     published: boolean
-

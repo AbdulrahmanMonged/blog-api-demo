@@ -1,7 +1,6 @@
 from fastapi import FastAPI, APIRouter
 from db import models
 from routers import posts, user
-import fastapi_swagger_dark as fsd
 from db.database import engine
 
 app = FastAPI()
@@ -13,4 +12,5 @@ models.Base.metadata.create_all(engine)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("main:app", reload=True)

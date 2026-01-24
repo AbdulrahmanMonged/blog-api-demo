@@ -1,18 +1,24 @@
 # FastAPI Blog API
 
-A RESTful blog API built with FastAPI, SQLAlchemy, and PostgreSQL. This project serves as a hands-on learning experience for mastering FastAPI fundamentals, covering everything from basic CRUD operations to database relationships and password security.
+A RESTful blog API built with FastAPI, SQLAlchemy, and PostgreSQL. This project serves as a hands-on learning experience for mastering FastAPI fundamentals, covering everything from basic CRUD operations to JWT authentication, WebSockets, and template rendering.
 
 ## Features
 
 - **User Management** - Registration, authentication, profile updates, and account deletion
 - **Blog Posts CRUD** - Full create, read, update, and delete functionality
+- **JWT Authentication** - Token-based auth with OAuth2 password flow
 - **Password Security** - Bcrypt hashing with Passlib for secure credential storage
+- **WebSocket Chat** - Real-time bidirectional communication
+- **File Upload/Download** - Handle file uploads and serve downloads
+- **Jinja2 Templates** - Server-side HTML rendering with static files
 - **Database Migrations** - Version-controlled schema changes with Alembic
 - **ORM Relationships** - One-to-many relationship between users and posts with cascade deletion
+- **Custom Middleware** - Request timing and custom headers
 - **Custom Exception Handling** - Application-specific exceptions with custom HTTP responses
 - **CORS Middleware** - Cross-Origin Resource Sharing configuration
 - **Multiple Response Types** - JSON, HTML, and PlainText responses
-- **Cookies & Headers** - Custom header handling and cookie management
+- **Dependency Injection** - Class-based and multi-level dependencies
+- **Unit Tests** - TestClient-based endpoint testing
 
 ## Tech Stack
 
@@ -23,17 +29,25 @@ A RESTful blog API built with FastAPI, SQLAlchemy, and PostgreSQL. This project 
 | PostgreSQL | Relational database |
 | Alembic | Database migrations |
 | Passlib + Bcrypt | Password hashing |
+| python-jose | JWT token encoding/decoding |
+| Jinja2 | Template engine |
 | Pydantic | Request/response validation |
+| pytest | Testing framework |
 
 ## Project Structure
 
 ```
 fastapi-playground/
-├── main.py              # Application entry point
+├── main.py              # Application entry point, middleware, WebSocket
 ├── schemas.py           # Pydantic request/response models
 ├── exceptions.py        # Custom exception classes
+├── client.py            # WebSocket chat HTML client
+├── test_main.py         # Unit tests
 ├── requirements.txt     # Dependencies
 ├── alembic.ini          # Migration configuration
+├── auth/
+│   ├── authentication.py   # Token endpoint
+│   └── oauth2.py           # JWT creation & validation
 ├── db/
 │   ├── database.py      # Database connection & session dependency
 │   ├── models.py        # SQLAlchemy ORM models
@@ -43,7 +57,14 @@ fastapi-playground/
 ├── routers/
 │   ├── user.py          # User endpoints
 │   ├── posts.py         # Post endpoints
-│   └── product.py       # Product endpoints (response types demo)
+│   ├── product.py       # Product endpoints (response types demo)
+│   ├── files.py         # File upload/download endpoints
+│   └── dependencies.py  # Dependency injection examples
+├── templates/
+│   ├── templates.py     # Template router
+│   ├── product.html     # Jinja2 template
+│   └── static/          # CSS/JS static files
+├── files/               # Uploaded files directory
 └── migrations/
     └── versions/        # Migration history
 ```
@@ -73,6 +94,12 @@ fastapi-playground/
 
 ## API Endpoints
 
+### Authentication `/auth`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/auth/token` | Get JWT access token (OAuth2 password flow) |
+
 ### User Endpoints `/user`
 
 | Method | Endpoint | Description |
@@ -93,6 +120,28 @@ fastapi-playground/
 | `PUT` | `/posts/post/{post_id}` | Update post |
 | `DELETE` | `/posts/post/{post_id}` | Delete post |
 
+### File Endpoints `/file`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/file/upload` | Upload file as bytes |
+| `POST` | `/file/uploadfile` | Upload file using UploadFile |
+| `GET` | `/file/download/{name}` | Download a file |
+
+### Template Endpoints `/templates`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/templates/product/{id}` | Render product HTML template |
+
+### Dependency Examples `/dependency`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/dependency/` | Demo: query params & headers extraction |
+| `GET` | `/dependency/new` | Demo: nested dependencies |
+| `GET` | `/dependency/user` | Demo: class-based dependency |
+
 ### Product Endpoints `/product`
 
 | Method | Endpoint | Description | Response Type |
@@ -101,6 +150,12 @@ fastapi-playground/
 | `GET` | `/product/withheader` | Get products with custom headers | JSON |
 | `GET` | `/product/set_cookie` | Set and read cookies | JSON |
 | `GET` | `/product/{id}` | Get product by ID | HTML or Plain Text |
+
+### WebSocket
+
+| Endpoint | Description |
+|----------|-------------|
+| `ws://localhost:8000/chat` | Real-time chat WebSocket |
 
 ## Installation
 
@@ -153,9 +208,16 @@ fastapi-playground/
 
 Once running, access the interactive docs:
 
-- **Swagger UI (Dark Theme)**: http://localhost:8000/docs
+- **Swagger UI**: http://localhost:8000/docs
 
 ## Usage Examples
+
+### Get JWT Token
+
+```bash
+curl -X POST "http://localhost:8000/auth/token" \
+  -d "username=john&password=secret123"
+```
 
 ### Create a User
 
@@ -163,14 +225,6 @@ Once running, access the interactive docs:
 curl -X POST "http://localhost:8000/user/" \
   -H "Content-Type: application/json" \
   -d '{"username": "john", "password": "secret123", "email": "john@example.com"}'
-```
-
-### Login
-
-```bash
-curl -X POST "http://localhost:8000/user/login" \
-  -H "Content-Type: application/json" \
-  -d '{"username": "john", "password": "secret123"}'
 ```
 
 ### Create a Post
@@ -181,22 +235,23 @@ curl -X POST "http://localhost:8000/posts/" \
   -d '{"title": "My First Post", "content": "Hello World!", "user_id": 1}'
 ```
 
-### Get User's Posts
+### Upload a File
 
 ```bash
-curl -X GET "http://localhost:8000/posts/1"
+curl -X POST "http://localhost:8000/file/uploadfile" \
+  -F "file=@myfile.txt"
 ```
 
-### Get Product (HTML Response)
+### Download a File
 
 ```bash
-curl -X GET "http://localhost:8000/product/0"
+curl -X GET "http://localhost:8000/file/download/myfile.txt" -o myfile.txt
 ```
 
-### Set a Cookie
+## Running Tests
 
 ```bash
-curl -X GET "http://localhost:8000/product/set_cookie" -c cookies.txt
+pytest test_main.py -v
 ```
 
 ## Key Learnings
@@ -211,19 +266,28 @@ This project covers several important FastAPI and SQLAlchemy concepts:
 - **Response Models** - Using `response_model` to automatically filter sensitive data like passwords
 - **Custom Exception Handling** - Creating custom exceptions and registering handlers with `@app.exception_handler()`
 - **CORS Middleware** - Configuring cross-origin resource sharing for frontend integration
+- **HTTP Middleware** - Adding request timing with `@app.middleware("http")`
 - **Multiple Response Types** - Returning `HTMLResponse`, `PlainTextResponse`, and `JSONResponse`
 - **Cookies & Headers** - Using `Cookie()` and `Header()` parameters for reading, and `Response` for setting
 - **OpenAPI Response Documentation** - Using `responses={}` parameter to document multiple response types
+- **JWT Authentication** - Creating and validating tokens with `python-jose`, OAuth2PasswordBearer flow
+- **WebSockets** - Real-time bidirectional communication for chat functionality
+- **File Handling** - Upload with `File()` and `UploadFile`, download with `FileResponse`
+- **Static Files** - Mounting directories with `StaticFiles`
+- **Jinja2 Templates** - Server-side rendering with `Jinja2Templates` and `TemplateResponse`
+- **Class-based Dependencies** - Using classes as dependencies with automatic parameter injection
+- **Multi-level Dependencies** - Dependencies that depend on other dependencies
+- **Testing** - Using `TestClient` for endpoint testing with pytest
 
 ## Roadmap
 
 Planned improvements:
 
-- [ ] JWT token-based authentication
+- [x] JWT token-based authentication
+- [x] Unit and integration tests
 - [ ] Role-based access control
 - [ ] Post categories and tags
 - [ ] Pagination for list endpoints
-- [ ] Unit and integration tests
 - [ ] Docker containerization
 
 ## License

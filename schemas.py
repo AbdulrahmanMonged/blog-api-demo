@@ -49,3 +49,9 @@ class UpdatePostModel(BaseModel):
     title: str
     content: str
     published: boolean
+
+
+class ProductBase(BaseModel):
+    title: str
+    description: str
+    price: str

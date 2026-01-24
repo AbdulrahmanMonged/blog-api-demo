@@ -1,0 +1,10 @@
+<head>
+  <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet" />
+</head>
+<body>
+  <div class="tpl_product">
+    <div class="tpl_title">{{ product.title }}</div>
+    <div class="tpl_description">{{ product.description }}</div>
+    <div class="tpl_price">{{ product.price }}</div>
+  </div>
+</body>

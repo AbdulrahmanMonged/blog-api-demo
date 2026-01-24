@@ -4,3 +4,9 @@ psycopg2-binary
 passlib
 bcrypt
 alembic
+python-jose
+aiofiles
+requests
+pytest
+jinja2
+websockets

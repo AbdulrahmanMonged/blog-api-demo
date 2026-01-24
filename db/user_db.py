@@ -5,14 +5,19 @@ from db.models import DbUser
 from schemas import BasicUserModel, UpdateUserModel, UserModel
 from fastapi import HTTPException, status
 
-
-def get_user(db: Session, user_id: int):
-    current_user = db.scalars(select(DbUser).where(DbUser.id == user_id)).first()
+def get_username_by_id(db: Session, user_id: int):
+    current_username = db.scalars(select(DbUser.username).where(DbUser.id == user_id)).first()
+    if current_username:
+        return current_username
+    raise HTTPException(detail="User not found", status_code=status.HTTP_404_NOT_FOUND)
+    
+def get_user(db: Session, username: str):
+    current_user = db.scalars(select(DbUser).where(DbUser.username == username)).first()
     if current_user:
         return current_user
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User with id:{user_id} not found",
+        detail=f"User with id:{username} not found",
     )
 
 

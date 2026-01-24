@@ -8,7 +8,8 @@ from db.posts_db import (
     get_specfic_post,
     update_post,
 )
-from schemas import PostModel, PostModelDisplay, UpdatePostModel
+from schemas import PostModel, PostModelDisplay, UpdatePostModel, UserModelResponse
+from auth.oauth2 import get_current_user, oauth2_schema
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -28,10 +29,12 @@ async def get_user_posts(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.get(
-    "/post/{post_id}", status_code=status.HTTP_200_OK, response_model=PostModelDisplay
-)
-async def get_user_post(post_id: int, db: Session = Depends(get_db)):
-    return get_specfic_post(db, post_id)
+    "/post/{post_id}", status_code=status.HTTP_200_OK) #, response_model=PostModelDisplay
+
+async def get_user_post(
+    post_id: int, db: Session = Depends(get_db), user: UserModelResponse = Depends(get_current_user)
+):
+    return {"post": get_specfic_post(db, post_id), "user": user}
 
 
 # UPDATE
